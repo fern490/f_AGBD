@@ -1,4 +1,4 @@
-/*# AGBD Base de Datos con SQL*/
+/* AGBD Base de Datos con SQL */
 
 SELECT * FROM INHABITANT
 

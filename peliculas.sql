@@ -149,7 +149,16 @@ GROUP BY c.customer_id, c.last_name, c.city, co.country, a.address
 ORDER BY pago ASC
 
 /*18º*/
-INSERT INTO actor (first_name, last_name, last_update)
-VALUES ('Fernando', 'Valle', CURRENT_TIMESTAMP)
+INSERT INTO actor (actor_id, first_name, last_name, last_update)
+VALUES (201, "Fernando", "Valle", "2025-04-24 11:37:29")
 
 /*19º*/
+INSERT INTO actor (actor_id, first_name, last_name, last_update)
+VALUES (202, "Joe", "Smith", "2025-05-08 9:20:11")
+VALUES (203, "Tom", "Holland", "2025-05-09 9:24:33")
+
+/*20*/
+
+
+/*21*/
+DELETE FROM actor WHERE nombre = ""

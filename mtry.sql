@@ -1,4 +1,4 @@
-/*SQL Mystery*/
+/* SQL Mystery */
 
 SELECT * FROM crime_scene_report
 
