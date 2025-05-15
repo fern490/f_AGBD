@@ -20,7 +20,7 @@ WHERE name LIKE '%Annabel%'
 AND address_street_name = "Franklin Ave"
 
 SELECT * FROM interview
-WHERE person_id IN ("14887", "16371") /* filas donde person_id es igual a 14887 o 16371 */
+WHERE person_id IN ("14887", "16371") /* Filas donde person_id es igual a 14887 o 16371 */
 
 SELECT * FROM get_fit_now_check_in
 WHERE membership_id LIKE '48Z%'

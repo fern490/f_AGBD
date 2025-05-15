@@ -36,17 +36,16 @@ SELECT inhabitant.name FROM VILLAGE, INHABITANT
 
 WHERE chief = personid AND village.name = "Onionville" /*Obtener nombres de los habitantes en Onionville que son jefes, utilizando una relación entre 2 tablas*/
 
-SELECT COUNT(*) FROM INHABITANT 
+SELECT COUNT(*) FROM INHABITANT
 WHERE gender = 'f' AND villageid = 3 /*Cuántas mujeres hay en la aldea*/
 
-SELECT name FROM INHABITANT 
-WHERE gender = 'f' AND villageid = 3 /* Nombres de las mujeres que pertenecen al pueblo con el ID 3*/
+SELECT name FROM INHABITANT
+WHERE gender = 'f' AND villageid = 3 /*Nombres de las mujeres que pertenecen al pueblo con el ID 3*/
 
 SELECT SUM(gold) FROM INHABITANT WHERE job = "baker"
 OR job = "dealer" OR job = "merchant" /*Suma(total) el valor de la columna gold solo para aquellos habitantes que tienen los trabajos de panadero, comerciante o vendedor*/
 
-SELECT state, AVG(inhabitant.gold) FROM INHABITANT
- /*Promedio de la cantidad de oro(gold) de los habitantes agrupado por cada estado*/
+SELECT state, AVG(inhabitant.gold) FROM INHABITANT /*Promedio de la cantidad de oro(gold) de los habitantes agrupado por cada estado*/
 GROUP BY state
 
 DELETE FROM INHABITANT WHERE name = "Dirty Diane" /*Elimina de la tabla INHABITANT todos los registros donde el campo 'name' es igual a "Dirty Diane"*/

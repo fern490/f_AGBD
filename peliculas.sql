@@ -52,19 +52,19 @@ JOIN payment p ON r.rental_id = p.rental_id
 ORDER BY f.film_id, a.actor_id, cu.customer_id
 
 /*6º*/
-SELECT count(*), f.rating
+SELECT COUNT(*), f.rating
 FROM film f
 GROUP BY rating
 
 /*7º*/
-SELECT count(*) AS cant_peliculas, c.name
+SELECT COUNT(*) AS cant_peliculas, c.name
 FROM film f
 INNER JOIN film_category fc ON f.film_id = fc.film_id
 INNER JOIN category c ON fc.category_id = c.category_id
 GROUP BY c.name
 
 /*8º*/
-SELECT count(fa.film_id) AS apariciones, a.first_name, a.last_name
+SELECT COUNT(fa.film_id) AS apariciones, a.first_name, a.last_name
 FROM actor a
 INNER JOIN film_actor fa ON a.actor_id = fa.actor_id
 GROUP BY a.actor_id
@@ -72,7 +72,7 @@ ORDER BY apariciones DESC
 LIMIT 10
 
 /*9º*/
-SELECT count(i.inventory_id) AS total_inventory, s.store_id, a.address, c.city, co.country
+SELECT COUNT(i.inventory_id) AS total_inventory, s.store_id, a.address, c.city, co.country
 FROM store s
 INNER JOIN address a ON s.address_id = a.address_id
 INNER JOIN city c ON a.city_id = c.city_id
@@ -82,7 +82,7 @@ GROUP BY s.store_id, a.address, c.city, co.country
 ORDER BY total_inventory
 
 /*10º*/
-SELECT count(i.film_id) as total_movies, s.store_id, a.address, c.city, co.country
+SELECT COUNT(i.film_id) as total_movies, s.store_id, a.address, c.city, co.country
 FROM store s
 JOIN address a ON s.address_id = a.address_id
 JOIN city c ON a.city_id = c.city_id
@@ -116,7 +116,7 @@ INNER JOIN category c ON c.category_id = fc.category_id
 ORDER BY f.length DESC
 
 /*14º*/
-SELECT f.title AS nombre, count(fa.actor_id) >= 5 AS actores
+SELECT f.title AS nombre, COUNT(fa.actor_id) >= 5 AS actores
 FROM film f
 INNER JOIN film_actor fa ON fa.film_id = f.film_id
 WHERE f.title LIKE 'w%'
@@ -138,7 +138,7 @@ INNER JOIN actor a ON a.actor_id = fa.actor_id
 WHERE f.length <= 52
 
 /*17º*/
-SELECT c.last_name, c.city, co.country, a.address, count(r.rental_id), SUM(p.amount) AS pago
+SELECT c.last_name, c.city, co.country, a.address, COUNT(r.rental_id), SUM(p.amount) AS pago
 FROM customer c
 INNER JOIN address a ON a.address_id = c.address_id
 INNER JOIN city c ON c.city_id = a.city_id
