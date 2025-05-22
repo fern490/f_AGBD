@@ -154,11 +154,21 @@ VALUES (201, "Fernando", "Valle", "2025-04-24 11:37:29")
 
 /*19º*/
 INSERT INTO actor (actor_id, first_name, last_name, last_update)
-VALUES (202, "Joe", "Smith", "2025-05-08 9:20:11")
-VALUES (203, "Tom", "Holland", "2025-05-09 9:24:33")
+VALUES (202, "Joe", "Smith", "2025-05-08 9:20:11"),
+       (203, "Tom", "Holland", "2025-05-09 9:24:33")
 
 /*20*/
+UPDATE actor
+SET first_name = 'Actor Modificado 1'
+WHERE first_name = 'Fernando'
 
+UPDATE actor
+SET first_name = 'Actor Modificado 2'
+WHERE first_name = 'Joe'
+
+UPDATE actor
+SET first_name = 'Actor Modificado 3'
+WHERE first_name = 'Tom'
 
 /*21*/
-DELETE FROM actor WHERE nombre = ""
+DELETE FROM actor WHERE actor_id BETWEEN 201 AND 203
