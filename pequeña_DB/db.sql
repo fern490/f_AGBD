@@ -9,7 +9,8 @@ CREATE TABLE Libros (
     titulo TEXT NOT NULL,
     anio_publicacion INTEGER,
     id_autor INTEGER, 
-	FOREIGN KEY(id_autor) REFERENCES Autores(id_autor) 
+	FOREIGN KEY(id_autor) REFERENCES Autores(id_autor),
+    FOREIGN KEY (id_genero) REFERENCES Genero(id_genero)
 )
 
 CREATE TABLE Género (
@@ -34,6 +35,8 @@ CREATE TABLE Prestamos (
     FOREIGN KEY(id_libro) REFERENCES Libros(id_libro)
 )
 
+/*  ALTER TABLE Libros ADD COLUMN id_genero INTEGER;  */
+
 /*Insertar valores a las tablas creadas*/
 
 INSERT INTO Autores (nombre, nacionalidad) 
@@ -46,7 +49,7 @@ VALUES ('Cien años de soledad', 1967, 1, 1),
        ('Harry Potter y la piedra filosofal', 1997, 2, 2),
        ('1984', 1949, 3, 3)
 
-INSERT INTO Genero (id_genero, name)
+INSERT INTO Género (id_genero, name)
 VALUES (1, 'Realismo Mágico'),
        (2, 'Fantasía'),
        (3, 'Distopía')
@@ -92,8 +95,8 @@ WHERE Libros.id_libro = 1
 /* Documentación y presentación 
 
 El propósito de esta base de datos es para gestionar la información de una biblioteca. Permite organizar libros,
-autores, géneros literarios, clientes y préstamos. Facilita el seguimiento de libros pretados, los usuarios que los
-solicitaron y los plazos de devolución.
+autores, géneros literarios, clientes y préstamos. Facilita el seguimiento de libros pretados, los usuarios que
+los solicitaron y los plazos de devolución.
 
 TABLAS:
 
@@ -101,7 +104,7 @@ Autores: contiene nombre y nacionalidad de los autores
 Género: registra los géneros
 Libros: almacena los libros con su autor y género
 CLientes: guarda los datos de los usuarios registrados
-Prestamos: registra los prestamos registrados(libro, cliente y fechas)
+Prestamos: registra qué libro fue prestado, a qué cliente, y en qué fechas
 
 RELACIONES:
 
