@@ -1,262 +1,224 @@
-from flask import Blueprint, request, jsonify, url_for, render_template
-from models import Evento, Torneo, Jugador, AsistenciaEvento, Inscripcion, Resultado
-from config import db
-from datetime import date, time
+from flask import Blueprint, request, jsonify
+from models import db, Cliente, Salon, Evento, Servicio, EventoServicio, Pago
+from datetime import datetime
 
 routes = Blueprint('routes', __name__)
 
+
+# CLIENTES
+
+@routes.route('/clientes', methods=['POST'])
+def crear_cliente():
+    data = request.json
+    cliente = Cliente(nombre=data['nombre'], telefono=data.get('telefono'), email=data.get('email'))
+    db.session.add(cliente)
+    db.session.commit()
+    return jsonify({"mensaje": "Cliente creado"}), 201
+
+@routes.route('/clientes', methods=['GET'])
+def listar_clientes():
+    clientes = Cliente.query.all()
+    return jsonify([{"id": c.cliente_id, "nombre": c.nombre, "telefono": c.telefono, "email": c.email} for c in clientes])
+
+@routes.route('/clientes/<int:id>', methods=['PUT'])
+def actualizar_cliente(id):
+    cliente = Cliente.query.get_or_404(id)
+    data = request.json
+    cliente.nombre = data.get("nombre", cliente.nombre)
+    cliente.telefono = data.get("telefono", cliente.telefono)
+    cliente.email = data.get("email", cliente.email)
+    db.session.commit()
+    return jsonify({"mensaje": "Cliente actualizado"})
+
+@routes.route('/clientes/<int:id>', methods=['DELETE'])
+def eliminar_cliente(id):
+    cliente = Cliente.query.get_or_404(id)
+    db.session.delete(cliente)
+    db.session.commit()
+    return jsonify({"mensaje": "Cliente eliminado"})
+
+
+#SALONES
+
+@routes.route('/salones', methods=['POST'])
+def crear_salon():
+    data = request.json
+    salon = Salon(nombre=data['nombre'], direccion=data.get('direccion'), capacidad=data.get('capacidad'))
+    db.session.add(salon)
+    db.session.commit()
+    return jsonify({"mensaje": "Salón creado"}), 201
+
+@routes.route('/salones', methods=['GET'])
+def listar_salones():
+    salones = Salon.query.all()
+    return jsonify([{"id": s.salon_id, "nombre": s.nombre, "direccion": s.direccion, "capacidad": s.capacidad} for s in salones])
+
+@routes.route('/salones/<int:id>', methods=['PUT'])
+def actualizar_salon(id):
+    salon = Salon.query.get_or_404(id)
+    data = request.json
+    salon.nombre = data.get("nombre", salon.nombre)
+    salon.direccion = data.get("direccion", salon.direccion)
+    salon.capacidad = data.get("capacidad", salon.capacidad)
+    db.session.commit()
+    return jsonify({"mensaje": "Salón actualizado"})
+
+@routes.route('/salones/<int:id>', methods=['DELETE'])
+def eliminar_salon(id):
+    salon = Salon.query.get_or_404(id)
+    db.session.delete(salon)
+    db.session.commit()
+    return jsonify({"mensaje": "Salón eliminado"})
+
+
 # EVENTOS
 
-@routes.route("/eventos", methods=["POST"])
+@routes.route('/eventos', methods=['POST'])
 def crear_evento():
     data = request.json
-    nuevo_evento = Evento(
-        nombre_evento=data["nombre_evento"],
-        fecha=date.fromisoformat(data["fecha"]),
-        tema=data.get("tema"),
-        capacidad=data.get("capacidad", 0)
+    evento = Evento(
+        nombre_evento=data['nombre_evento'],
+        fecha=datetime.strptime(data['fecha'], "%Y-%m-%d"),
+        tema=data.get('tema'),
+        informe_detallado=data.get('informe_detallado'),
+        salon_id=data['salon_id'],
+        cliente_id=data['cliente_id']
     )
-    db.session.add(nuevo_evento)
+    db.session.add(evento)
     db.session.commit()
     return jsonify({"mensaje": "Evento creado"}), 201
 
-@routes.route("/eventos", methods=["GET"])
+@routes.route('/eventos', methods=['GET'])
 def listar_eventos():
     eventos = Evento.query.all()
-    return jsonify([{
-        "id": e.evento_id,
-        "nombre": e.nombre_evento,
-        "fecha": e.fecha.isoformat(),
-        "tema": e.tema,
-        "capacidad": e.capacidad
-    } for e in eventos])
+    return jsonify([
+        {
+            "id": e.evento_id,
+            "nombre_evento": e.nombre_evento,
+            "fecha": e.fecha.isoformat(),
+            "tema": e.tema,
+            "informe_detallado": e.informe_detallado,
+            "salon": e.salon.nombre,
+            "cliente": e.cliente.nombre
+        } for e in eventos
+    ])
 
-@routes.route("/eventos/<int:id>", methods=["PUT"])
+@routes.route('/eventos/<int:id>', methods=['PUT'])
 def actualizar_evento(id):
     evento = Evento.query.get_or_404(id)
     data = request.json
     evento.nombre_evento = data.get("nombre_evento", evento.nombre_evento)
     if "fecha" in data:
-        evento.fecha = date.fromisoformat(data["fecha"])
+        evento.fecha = datetime.strptime(data["fecha"], "%Y-%m-%d")
     evento.tema = data.get("tema", evento.tema)
-    evento.capacidad = data.get("capacidad", evento.capacidad)
+    evento.informe_detallado = data.get("informe_detallado", evento.informe_detallado)
     db.session.commit()
     return jsonify({"mensaje": "Evento actualizado"})
 
-@routes.route("/eventos/<int:id>", methods=["DELETE"])
+@routes.route('/eventos/<int:id>', methods=['DELETE'])
 def eliminar_evento(id):
     evento = Evento.query.get_or_404(id)
     db.session.delete(evento)
     db.session.commit()
     return jsonify({"mensaje": "Evento eliminado"})
 
-# JUGADORES
 
-@routes.route("/jugadores", methods=["POST"])
-def crear_jugador():
+# SERVICIOS
+ 
+@routes.route('/servicios', methods=['POST'])
+def crear_servicio():
     data = request.json
-    jugador = Jugador(
-        nombre=data["nombre"],
-        nickname=data["nickname"],
-        edad=data["edad"]
+    servicio = Servicio(nombre_servicio=data['nombre_servicio'], descripcion=data.get('descripcion'), costo=data.get('costo'))
+    db.session.add(servicio)
+    db.session.commit()
+    return jsonify({"mensaje": "Servicio creado"}), 201
+
+@routes.route('/servicios', methods=['GET'])
+def listar_servicios():
+    servicios = Servicio.query.all()
+    return jsonify([{"id": s.servicio_id, "nombre_servicio": s.nombre_servicio, "descripcion": s.descripcion, "costo": str(s.costo)} for s in servicios])
+
+@routes.route('/servicios/<int:id>', methods=['PUT'])
+def actualizar_servicio(id):
+    servicio = Servicio.query.get_or_404(id)
+    data = request.json
+    servicio.nombre_servicio = data.get("nombre_servicio", servicio.nombre_servicio)
+    servicio.descripcion = data.get("descripcion", servicio.descripcion)
+    servicio.costo = data.get("costo", servicio.costo)
+    db.session.commit()
+    return jsonify({"mensaje": "Servicio actualizado"})
+
+@routes.route('/servicios/<int:id>', methods=['DELETE'])
+def eliminar_servicio(id):
+    servicio = Servicio.query.get_or_404(id)
+    db.session.delete(servicio)
+    db.session.commit()
+    return jsonify({"mensaje": "Servicio eliminado"})
+
+
+#CONECTA (eventos_servicios)
+
+@routes.route('/eventos/<int:evento_id>/servicios', methods=['POST'])
+def asignar_servicio(evento_id):
+    data = request.json
+    evento_servicio = EventoServicio(evento_id=evento_id, servicio_id=data['servicio_id'])
+    db.session.add(evento_servicio)
+    db.session.commit()
+    return jsonify({"mensaje": "Servicio asignado al evento"}), 201
+
+@routes.route('/eventos/<int:evento_id>/servicios', methods=['GET'])
+def listar_servicios_evento(evento_id):
+    servicios = EventoServicio.query.filter_by(evento_id=evento_id).all()
+    return jsonify([
+        {"servicio": s.servicio.nombre_servicio, "descripcion": s.servicio.descripcion, "costo": str(s.servicio.costo)}
+        for s in servicios
+    ])
+
+@routes.route('/eventos_servicios/<int:id>', methods=['DELETE'])
+def eliminar_evento_servicio(id):
+    es = EventoServicio.query.get_or_404(id)
+    db.session.delete(es)
+    db.session.commit()
+    return jsonify({"mensaje": "Servicio eliminado del evento"})
+
+
+# PAGOS
+
+@routes.route('/pagos', methods=['POST'])
+def registrar_pago():
+    data = request.json
+    pago = Pago(
+        evento_id=data['evento_id'],
+        monto=data['monto'],
+        fecha_pago=datetime.strptime(data['fecha_pago'], "%Y-%m-%d"),
+        metodo=data.get('metodo')
     )
-    db.session.add(jugador)
+    db.session.add(pago)
     db.session.commit()
-    return jsonify({"mensaje": "Jugador creado"}), 201
+    return jsonify({"mensaje": "Pago registrado"}), 201
 
-@routes.route("/jugadores", methods=["GET"])
-def listar_jugadores():
-    jugadores = Jugador.query.all()
-    return jsonify([{
-        "id": j.jugador_id,
-        "nombre": j.nombre,
-        "nickname": j.nickname,
-        "edad": j.edad
-    } for j in jugadores])
+@routes.route('/pagos', methods=['GET'])
+def listar_pagos():
+    pagos = Pago.query.all()
+    return jsonify([
+        {"id": p.pago_id, "evento": p.evento.nombre_evento, "monto": str(p.monto), "fecha_pago": p.fecha_pago.isoformat(), "metodo": p.metodo}
+        for p in pagos
+    ])
 
-@routes.route("/jugadores/<int:id>", methods=["PUT"])
-def actualizar_jugador(id):
-    jugador = Jugador.query.get_or_404(id)
+@routes.route('/pagos/<int:id>', methods=['PUT'])
+def actualizar_pago(id):
+    pago = Pago.query.get_or_404(id)
     data = request.json
-    jugador.nombre = data.get("nombre", jugador.nombre)
-    jugador.nickname = data.get("nickname", jugador.nickname)
-    jugador.edad = data.get("edad", jugador.edad)
+    pago.monto = data.get("monto", pago.monto)
+    if "fecha_pago" in data:
+        pago.fecha_pago = datetime.strptime(data["fecha_pago"], "%Y-%m-%d")
+    pago.metodo = data.get("metodo", pago.metodo)
     db.session.commit()
-    return jsonify({"mensaje": "Jugador actualizado"})
+    return jsonify({"mensaje": "Pago actualizado"})
 
-@routes.route("/jugadores/<int:id>", methods=["DELETE"])
-def eliminar_jugador(id):
-    jugador = Jugador.query.get_or_404(id)
-    db.session.delete(jugador)
+@routes.route('/pagos/<int:id>', methods=['DELETE'])
+def eliminar_pago(id):
+    pago = Pago.query.get_or_404(id)
+    db.session.delete(pago)
     db.session.commit()
-    return jsonify({"mensaje": "Jugador eliminado"})
-
-# TORNEOS
-
-@routes.route("/torneos", methods=["POST"])
-def crear_torneo():
-    data = request.json
-    torneo = Torneo(
-        evento_id=data["evento_id"],
-        juego=data["juego"],
-        hora_inicio=time.fromisoformat(data["hora_inicio"]),
-        max_jugadores=data["max_jugadores"]
-    )
-    db.session.add(torneo)
-    db.session.commit()
-    return jsonify({"mensaje": "Torneo creado"}), 201
-
-@routes.route("/torneos", methods=["GET"])
-def listar_torneos():
-    torneos = Torneo.query.all()
-    return jsonify([{
-        "id": t.torneo_id,
-        "evento_id": t.evento_id,
-        "juego": t.juego,
-        "hora_inicio": t.hora_inicio.isoformat(),
-        "max_jugadores": t.max_jugadores
-    } for t in torneos])
-
-@routes.route("/torneos/<int:id>", methods=["PUT"])
-def actualizar_torneo(id):
-    torneo = Torneo.query.get_or_404(id)
-    data = request.json
-    torneo.evento_id = data.get("evento_id", torneo.evento_id)
-    torneo.juego = data.get("juego", torneo.juego)
-    if "hora_inicio" in data:
-        torneo.hora_inicio = time.fromisoformat(data["hora_inicio"])
-    torneo.max_jugadores = data.get("max_jugadores", torneo.max_jugadores)
-    db.session.commit()
-    return jsonify({"mensaje": "Torneo actualizado"})
-
-@routes.route("/torneos/<int:id>", methods=["DELETE"])
-def eliminar_torneo(id):
-    torneo = Torneo.query.get_or_404(id)
-    db.session.delete(torneo)
-    db.session.commit()
-    return jsonify({"mensaje": "Torneo eliminado"})
-
-# INSCRIPCIONES
-
-@routes.route("/inscripciones", methods=["POST"])
-def crear_inscripcion():
-    data = request.json
-    inscripcion = Inscripcion(
-        jugador_id=data["jugador_id"],
-        torneo_id=data["torneo_id"],
-        fecha_inscripcion=date.fromisoformat(data["fecha_inscripcion"])
-    )
-    db.session.add(inscripcion)
-    db.session.commit()
-    return jsonify({"mensaje": "Inscripción creada"}), 201
-
-@routes.route("/inscripciones", methods=["GET"])
-def listar_inscripciones():
-    inscripciones = Inscripcion.query.all()
-    return jsonify([{
-        "id": i.inscripcion_id,
-        "jugador_id": i.jugador_id,
-        "torneo_id": i.torneo_id,
-        "fecha_inscripcion": i.fecha_inscripcion.isoformat()
-    } for i in inscripciones])
-
-@routes.route("/inscripciones/<int:id>", methods=["PUT"])
-def actualizar_inscripcion(id):
-    inscripcion = Inscripcion.query.get_or_404(id)
-    data = request.json
-    inscripcion.jugador_id = data.get("jugador_id", inscripcion.jugador_id)
-    inscripcion.torneo_id = data.get("torneo_id", inscripcion.torneo_id)
-    if "fecha_inscripcion" in data:
-        inscripcion.fecha_inscripcion = date.fromisoformat(data["fecha_inscripcion"])
-    db.session.commit()
-    return jsonify({"mensaje": "Inscripción actualizada"})
-
-@routes.route("/inscripciones/<int:id>", methods=["DELETE"])
-def eliminar_inscripcion(id):
-    inscripcion = Inscripcion.query.get_or_404(id)
-    db.session.delete(inscripcion)
-    db.session.commit()
-    return jsonify({"mensaje": "Inscripción eliminada"})
-
-# RESULTADOS
-
-@routes.route("/resultados", methods=["POST"])
-def crear_resultado():
-    data = request.json
-    resultado = Resultado(
-        inscripcion_id=data["inscripcion_id"],
-        posicion=data["posicion"],
-        puntos=data["puntos"]
-    )
-    db.session.add(resultado)
-    db.session.commit()
-    return jsonify({"mensaje": "Resultado creado"}), 201
-
-@routes.route("/resultados", methods=["GET"])
-def listar_resultados():
-    resultados = Resultado.query.all()
-    return jsonify([{
-        "id": r.resultado_id,
-        "inscripcion_id": r.inscripcion_id,
-        "posicion": r.posicion,
-        "puntos": r.puntos
-    } for r in resultados])
-
-@routes.route("/resultados/<int:id>", methods=["PUT"])
-def actualizar_resultado(id):
-    resultado = Resultado.query.get_or_404(id)
-    data = request.json
-    resultado.inscripcion_id = data.get("inscripcion_id", resultado.inscripcion_id)
-    resultado.posicion = data.get("posicion", resultado.posicion)
-    resultado.puntos = data.get("puntos", resultado.puntos)
-    db.session.commit()
-    return jsonify({"mensaje": "Resultado actualizado"})
-
-@routes.route("/resultados/<int:id>", methods=["DELETE"])
-def eliminar_resultado(id):
-    resultado = Resultado.query.get_or_404(id)
-    db.session.delete(resultado)
-    db.session.commit()
-    return jsonify({"mensaje": "Resultado eliminado"})
-
-# ASISTENCIAS
-
-@routes.route("/asistencias", methods=["POST"])
-def crear_asistencia():
-    data = request.json
-    asistencia = AsistenciaEvento(
-        jugador_id=data["jugador_id"],
-        evento_id=data["evento_id"],
-        hora_entrada=time.fromisoformat(data["hora_entrada"])
-    )
-    db.session.add(asistencia)
-    db.session.commit()
-    return jsonify({"mensaje": "Asistencia registrada"}), 201
-
-@routes.route("/asistencias", methods=["GET"])
-def listar_asistencias():
-    asistencias = AsistenciaEvento.query.all()
-    return jsonify([{
-        "id": a.asistencia_id,
-        "jugador_id": a.jugador_id,
-        "evento_id": a.evento_id,
-        "hora_entrada": a.hora_entrada.isoformat()
-    } for a in asistencias])
-
-@routes.route("/asistencias/<int:id>", methods=["PUT"])
-def actualizar_asistencia(id):
-    asistencia = AsistenciaEvento.query.get_or_404(id)
-    data = request.json
-    asistencia.jugador_id = data.get("jugador_id", asistencia.jugador_id)
-    asistencia.evento_id = data.get("evento_id", asistencia.evento_id)
-    if "hora_entrada" in data:
-        asistencia.hora_entrada = time.fromisoformat(data["hora_entrada"])
-    db.session.commit()
-    return jsonify({"mensaje": "Asistencia actualizada"})
-
-@routes.route("/asistencias/<int:id>", methods=["DELETE"])
-def eliminar_asistencia(id):
-    asistencia = AsistenciaEvento.query.get_or_404(id)
-    db.session.delete(asistencia)
-    db.session.commit()
-    return jsonify({"mensaje": "Asistencia eliminada"})
+    return jsonify({"mensaje": "Pago eliminado"})
