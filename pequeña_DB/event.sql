@@ -47,3 +47,11 @@ CREATE TABLE pagos (
     metodo VARCHAR(50),
     CONSTRAINT fk_pago_evento FOREIGN KEY (evento_id) REFERENCES eventos(evento_id)
 );
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    rol VARCHAR(50) NOT NULL
+);

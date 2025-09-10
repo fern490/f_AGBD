@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Cliente, Salon, Evento, Servicio, EventoServicio, Pago
+from models import db, Cliente, Salon, Evento, Servicio, EventoServicio, Pago, Usuario
 from datetime import datetime
 
 routes = Blueprint('routes', __name__)
@@ -222,3 +222,18 @@ def eliminar_pago(id):
     db.session.delete(pago)
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
+
+
+# LOGIN
+
+@routes.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    usuario = Usuario.query.filter_by(email=email, password=password).first()
+    if not usuario:
+        return jsonify({"mensaje": "Credenciales inválidas"}), 401
+
+    return jsonify({"mensaje": "Login exitoso", "rol": usuario.rol}), 200
