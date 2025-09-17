@@ -17,7 +17,7 @@ const styles = {
     alignItems: "center",
     height: "100vh",
     width: "100%",
-    backgroundColor: "#004d61",
+    backgroundColor: "#6c6872ff",
   },
 };
 

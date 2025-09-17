@@ -92,19 +92,20 @@ const Login = () => {
 // Estilos
 const styles = {
   container: {
-    width: "320px",
-    margin: "20px auto",
-    padding: "20px",
-    border: "2px solid #cccccc3d",
-    borderRadius: "8px",
-    textAlign: "center",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    fontFamily: "Arial, sans-serif",
-    boxSizing: "border-box",
-    backgroundColor: "#ffffff",
+  width: "320px",
+  margin: "20px auto",
+  padding: "20px",
+  border: "5px solid #cccccc3d",
+  borderRadius: "8px",
+  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  fontFamily: "Arial, sans-serif",
+  boxSizing: "border-box",
+  backgroundColor: "#22a0b1ff",
+  color: "white"
   },
 
   form: {
