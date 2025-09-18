@@ -6,17 +6,38 @@ const Login = () => {
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!email || !password || !role) {
-      setError("Por favor, completa todos los campos y selecciona un rol");
-      return;
-    }
+  if (!email || !password || !role) {
+    setError("Por favor, completa todos los campos y selecciona un rol");
+    return;
+  }
 
+  try {
     console.log("Enviando datos:", { email, password, role });
     setError("");
-  };
+
+    const response = await fetch("http://localhost:5000/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, role })
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      alert("Login exitoso");
+      localStorage.setItem("token", data.token);
+    } else {
+      alert("Error: " + data.message);
+    }
+  } catch (error) {
+    console.error("Error en la petición:", error);
+    setError("Hubo un problema con el servidor");
+  }
+};
 
   return (
     <div style={styles.container}>
@@ -104,7 +125,7 @@ const styles = {
   alignItems: "center",
   fontFamily: "Arial, sans-serif",
   boxSizing: "border-box",
-  backgroundColor: "#22a0b1ff",
+  backgroundColor: "#3fa2afff",
   color: "white"
   },
 
