@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago, Usuario
+from models import db, Usuario, Salon, Evento, Servicio, EventoServicio, Pago
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -11,10 +11,12 @@ routes = Blueprint('routes', __name__)
 @routes.route('/usuarios', methods=['POST'])
 def crear_usuario():
     data = request.json
+    # Hashing de la contraseña antes de guardarla
+    hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
     usuario = Usuario(
         nombre=data['nombre'],
         email=data['email'],
-        password=data['password'],
+        password=hashed_password,
         rol=data['rol']
     )
     db.session.add(usuario)
@@ -35,7 +37,8 @@ def actualizar_usuario(id):
     data = request.json
     usuario.nombre = data.get("nombre", usuario.nombre)
     usuario.email = data.get("email", usuario.email)
-    usuario.password = data.get("password", usuario.password)
+    if "password" in data:
+        usuario.password = generate_password_hash(data["password"], method='pbkdf2:sha256')
     usuario.rol = data.get("rol", usuario.rol)
     db.session.commit()
     return jsonify({"mensaje": "Usuario actualizado"})
@@ -46,6 +49,22 @@ def eliminar_usuario(id):
     db.session.delete(usuario)
     db.session.commit()
     return jsonify({"mensaje": "Usuario eliminado"})
+
+# LOGIN
+
+@routes.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    user = Usuario.query.filter_by(email=data.get("email")).first()
+
+    # Se agrego la validacion del rol, para que solo pueda ingresar si el email, la contraseña y el rol coinciden
+    if user and check_password_hash(user.password, data.get("password")) and user.rol == data.get("role"):
+        return jsonify({
+            "token": "fake-jwt-token",
+            "role": user.rol
+        })
+    else:
+        return jsonify({"message": "Credenciales inválidas"}), 401
 
 
 #SALONES
@@ -92,7 +111,7 @@ def crear_evento():
         tema=data.get('tema'),
         informe_detallado=data.get('informe_detallado'),
         salon_id=data['salon_id'],
-        cliente_id=data['cliente_id']
+        usuario_id=data['cliente_id']
     )
     db.session.add(evento)
     db.session.commit()
@@ -109,7 +128,7 @@ def listar_eventos():
             "tema": e.tema,
             "informe_detallado": e.informe_detallado,
             "salon": e.salon.nombre,
-            "cliente": e.cliente.nombre
+            "cliente": e.usuario.nombre
         } for e in eventos
     ])
 
@@ -134,7 +153,7 @@ def eliminar_evento(id):
 
 
 # SERVICIOS
- 
+
 @routes.route('/servicios', methods=['POST'])
 def crear_servicio():
     data = request.json
@@ -159,6 +178,7 @@ def actualizar_servicio(id):
     return jsonify({"mensaje": "Servicio actualizado"})
 
 @routes.route('/servicios/<int:id>', methods=['DELETE'])
+
 def eliminar_servicio(id):
     servicio = Servicio.query.get_or_404(id)
     db.session.delete(servicio)
@@ -232,7 +252,4 @@ def eliminar_pago(id):
     db.session.delete(pago)
     db.session.commit()
     return jsonify({"mensaje": "Pago eliminado"})
-
-
-#REGISTRO
 

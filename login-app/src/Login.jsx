@@ -21,7 +21,8 @@ const Login = () => {
       console.log("Enviando datos:", { email, password, role });
       setError("");
 
-      const response = await fetch("http://localhost:5000/api/login", {
+      // URL corregida para coincidir con la ruta de tu servidor Flask
+      const response = await fetch("http://127.0.0.1:5000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role }),
@@ -33,13 +34,13 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem("token", data.token);
 
-        // Navegación basada en el rol, como en el primer ejemplo
+        // Navegación basada en el rol
         if (data.role === "admin") {
           navigate("/admin-dashboard");
         } else if (data.role === "cliente") {
           navigate("/cliente-dashboard");
         } else {
-          // Si el rol es 'otros' o cualquier otro, lo mandamos a una página genérica
+          // Si el rol es 'otros'
           navigate("/home");
         }
       } else {
