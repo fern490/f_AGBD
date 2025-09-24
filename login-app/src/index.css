@@ -1,3 +1,8 @@
+/*
+  Las reglas de CSS que se aplican a elementos base como 'html' y 'body',
+  tenemos que asegurarnos que no haya estilos que puedan interferir con el diseño.
+*/
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -24,10 +29,7 @@ a:hover {
 
 body {
   margin: 0px;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -65,4 +67,12 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }

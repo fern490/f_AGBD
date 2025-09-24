@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -6,38 +7,49 @@ const Login = () => {
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!email || !password || !role) {
-    setError("Por favor, completa todos los campos y selecciona un rol");
-    return;
-  }
-
-  try {
-    console.log("Enviando datos:", { email, password, role });
-    setError("");
-
-    const response = await fetch("http://localhost:5000/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role })
-    });
-
-    const data = await response.json();
-    console.log(data);
-
-    if (response.ok) {
-      alert("Login exitoso");
-      localStorage.setItem("token", data.token);
-    } else {
-      alert("Error: " + data.message);
+    if (!email || !password || !role) {
+      setError("Por favor, completa todos los campos y selecciona un rol");
+      return;
     }
-  } catch (error) {
-    console.error("Error en la petición:", error);
-    setError("Hubo un problema con el servidor");
-  }
-};
+
+    try {
+      console.log("Enviando datos:", { email, password, role });
+      setError("");
+
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+
+        // Navegación basada en el rol, como en el primer ejemplo
+        if (data.role === "admin") {
+          navigate("/admin-dashboard");
+        } else if (data.role === "cliente") {
+          navigate("/cliente-dashboard");
+        } else {
+          // Si el rol es 'otros' o cualquier otro, lo mandamos a una página genérica
+          navigate("/home");
+        }
+      } else {
+        setError(data.message || "Credenciales inválidas");
+      }
+    } catch (error) {
+      console.error("Error en la petición:", error);
+      setError("Hubo un problema con el servidor");
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -113,20 +125,20 @@ const Login = () => {
 // Estilos
 const styles = {
   container: {
-  width: "320px",
-  margin: "20px auto",
-  padding: "20px",
-  border: "5px solid #cccccc3d",
-  borderRadius: "8px",
-  textAlign: "center",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  fontFamily: "Arial, sans-serif",
-  boxSizing: "border-box",
-  backgroundColor: "#3fa2afff",
-  color: "white"
+    width: "320px",
+    margin: "20px auto",
+    padding: "20px",
+    border: "5px solid #cccccc3d",
+    borderRadius: "8px",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    fontFamily: "Arial, sans-serif",
+    boxSizing: "border-box",
+    backgroundColor: "#425e62ff",
+    color: "white",
   },
 
   form: {
